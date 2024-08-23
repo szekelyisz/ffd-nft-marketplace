@@ -36,7 +36,7 @@
                 class="q-mx-xs"
               />
               <a
-                :href="`https://fairfooddata.org/?p=${$props.tokenId}`"
+                :href="`https://package.trace.market/?p=${$props.tokenId}`"
                 target="_blank"
                 class="q-ma-xs"
               >
