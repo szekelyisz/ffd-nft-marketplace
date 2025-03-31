@@ -33,10 +33,11 @@ import { useAccountStore } from 'src/stores/account';
 import assert from 'assert';
 import { getAllListings, totalListings } from 'thirdweb/extensions/marketplace';
 import { useListingsStore } from 'src/stores/listings';
+import { TokenId } from '@fairfooddata/types';
 
 const { chain, client, account } = useAccountStore();
 
-const listRequest = useAsyncState<bigint[]>(async () => {
+const listRequest = useAsyncState<TokenId[]>(async () => {
   assert(process.env.NFT_CONTRACT);
   assert(account);
 
@@ -50,7 +51,7 @@ const listRequest = useAsyncState<bigint[]>(async () => {
     contract,
     owner: account.address,
   }).then((result) => {
-    return result.map((nft) => nft.id);
+    return result.map((nft): TokenId => `0x${nft.id.toString(16)}`);
   });
 }, []);
 

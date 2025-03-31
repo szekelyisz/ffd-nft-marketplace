@@ -284,10 +284,10 @@
   resolved "https://registry.yarnpkg.com/@eslint/js/-/js-8.57.0.tgz#a5417ae8427873f1dd08b70b3574b453e67b5f7f"
   integrity sha512-Ys+3g2TaW7gADOJzPt83SJtCDhMjndcDMFVQ/Tj9iA1BfJzFKD9mAUXT3OenpuPHbI6P/myECxRJrofUsDx/5g==
 
-"@fairfooddata/types@^0.0.4":
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/@fairfooddata/types/-/types-0.0.4.tgz#b86cbe17418f4957928cd2166928b379fcdf2ac7"
-  integrity sha512-7/phL2nvb339qX1mTk3LCg/sOUVPOv2W8s7NOngTrJ0WiPKfiQqCjdTAaWZwf1HVB+NcG2bFuqI6K+6XfTA8vQ==
+"@fairfooddata/types@^0.0.9":
+  version "0.0.9"
+  resolved "https://registry.yarnpkg.com/@fairfooddata/types/-/types-0.0.9.tgz#64cd1de5ed20524b03901407a24ad22c38df7e85"
+  integrity sha512-YBe9stvlolOhEBTIOKhtqe61L4WOFk7TMbvo1euG3lZLG7qyEphVVTMp74BV/cws1VUCA71PPwn4PPXAUtaLjA==
 
 "@floating-ui/core@^1.6.0":
   version "1.6.4"

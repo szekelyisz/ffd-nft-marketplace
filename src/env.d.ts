@@ -9,6 +9,6 @@ declare namespace NodeJS {
     MARKETPLACE_CONTRACT: string;
     CHAIN_ID: string;
     CHAIN_RPC: string | undefined;
-    BACKEND_URL: string;
+    SWARM_API_URL: string;
   }
 }

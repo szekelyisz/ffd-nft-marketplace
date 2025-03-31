@@ -1,7 +1,7 @@
 <template>
   <q-card
     class="nft-card q-ma-sm"
-    v-if="metadataRequest.isFinished.value && !metadataRequest.error.value"
+    v-if="metadataRequest.isReady.value && !metadataRequest.error.value"
   >
     <q-card-section class="items-center">
       <div>
@@ -9,23 +9,19 @@
           <div class="col">
             <div class="row">
               <div
-                v-if="
-                  metadataRequest.data.value?.content.instance.category ===
-                  'food'
-                "
+                v-if="metadataRequest.state.value?.instance.category === 'food'"
                 class="text-subtitle1"
               >
                 <q-icon name="restaurant" size="24px" class="q-mr-sm" />
-                {{ metadataRequest.data.value?.content.instance.type }}
+                {{ metadataRequest.state.value?.instance.type }}
               </div>
               <div
                 v-if="
-                  metadataRequest.data.value?.content.instance.category ===
-                  'cartridge'
+                  metadataRequest.state.value?.instance.category === 'cartridge'
                 "
               >
                 <q-icon name="dns" size="24px" class="q-mr-sm" />
-                {{ metadataRequest.data.value?.content.instance.grade }}
+                {{ metadataRequest.state.value?.instance.grade }}
               </div>
               <q-btn
                 round
@@ -44,7 +40,7 @@
               </a>
             </div>
           </div>
-          <div v-if="account !== undefined">
+          <div v-if="accountStore.account !== undefined">
             <q-btn
               v-if="listing !== undefined"
               fab-mini
@@ -61,8 +57,6 @@
 </template>
 
 <script setup lang="ts">
-import { useMarketApi } from 'src/boot/axios';
-import { NftMetadata } from './models';
 import { useAccountStore } from 'src/stores/account';
 import { copyToClipboard } from 'quasar';
 import { useQuasar } from 'quasar';
@@ -70,23 +64,48 @@ import CreateListingDialog from './CreateListingDialog.vue';
 import CancelListingDialog from './CancelListingDialog.vue';
 import { computed } from 'vue';
 import { useListingsStore } from 'src/stores/listings';
+import assert from 'assert';
+import { getContract, readContract } from 'thirdweb';
+import { Pokedex, TokenId } from '@fairfooddata/types';
+import { useAsyncState } from '@vueuse/core';
 
-const props = defineProps<{ tokenId: bigint }>();
+const props = defineProps<{ tokenId: TokenId }>();
 
-const { account } = useAccountStore();
+const accountStore = useAccountStore();
 
 const $q = useQuasar();
 
-const metadataRequest = useMarketApi<NftMetadata>(`/metadata/${props.tokenId}`)
-  .get()
-  .json<NftMetadata>();
+const nftContract = getContract({
+  client: accountStore.client,
+  chain: accountStore.chain,
+  address: process.env.NFT_CONTRACT as string,
+});
+
+async function getTokenMetadata<T>(tokenId: TokenId): Promise<T> {
+  assert(accountStore.account !== undefined);
+
+  return readContract({
+    contract: nftContract,
+    method: 'function metadata(uint256 tokenId) public view returns (uint256)',
+    params: [BigInt(tokenId)],
+  })
+    .then((swarmHash) =>
+      fetch(process.env.SWARM_API_URL + `/bzz/${swarmHash.toString(16)}/`)
+    )
+    .then((response) => response.json());
+}
+
+const metadataRequest = useAsyncState<Pokedex | undefined>(
+  getTokenMetadata<Pokedex>(props.tokenId),
+  undefined
+);
 
 function createListing() {
   $q.dialog({
     component: CreateListingDialog,
     componentProps: {
       tokenId: props.tokenId,
-      metadata: metadataRequest.data.value?.content,
+      metadata: metadataRequest.state.value,
     },
   });
 }
@@ -103,7 +122,7 @@ function cancelListing() {
 
 const listing = computed(() =>
   useListingsStore().listings.find(
-    (listing) => listing.tokenId === props.tokenId
+    (listing) => listing.tokenId === BigInt(props.tokenId)
   )
 );
 </script>
